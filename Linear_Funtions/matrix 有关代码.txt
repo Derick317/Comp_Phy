@@ -1,0 +1,534 @@
+//********************************
+//permutation_matrix类
+//********************************
+class permutation_matrix
+{
+private:
+    vec<int> pm; //pm 的 i 个元素为 k 表示矩阵第 i 行第 k 列是 1
+
+public:
+    permutation_matrix() : pm() {} //默认构造函数
+    permutation_matrix(int n);     //构造 n 级单位矩阵
+
+    int getdim(){return pm.dim;} //获得维数
+    bool exch_row(int i, int j);   //交换第 i 行和第 j 行
+};
+
+//********************************
+//permutation_matrix类的函数实现
+//********************************
+permutation_matrix::permutation_matrix(int n) : pm(n)
+{
+    for (int i = 1; i <= n; i++) // i 是向量的真实列号，而不是存储指标
+        pm.v[i - 1] = i;
+}
+
+bool permutation_matrix::exch_row(int i, int j) //交换第 i 行和第 j 行
+{
+    if (i > pm.dim || i <= 0 || j > pm.dim || j <= 0)
+    {
+        std::cerr << "The row " << i << " or row " << j << " does not exist!" << std::endl;
+        return false;
+    }
+    int temp = pm.v[i - 1];
+    pm.v[i - 1] = pm.v[j - 1];
+    pm.v[j - 1] = temp;
+    return true;
+}
+
+//********************************
+//matrix类的函数实现
+//********************************
+template <class T>
+int matrix<T>::row_max_index(int i, int b, int e) //获取第i行最大元素的列数, 返回值在1~n之间
+{
+    if (i > matrix::dim || i <= 0)
+    {
+        cout << "Row " << i << " does not exist!" << endl;
+        return 0;
+    }
+    else if (b < 1 || e > dim + 1 || b >= e)
+    {
+        cout << "There's no element between " << b << " and " << e << "!" << endl;
+        return 0;
+    }
+    return (max_element(m[i - 1] + b - 1, m[i - 1] + e - 1 + matrix::dim) - m[i - 1] + 1);
+}
+
+template <class T>
+T matrix<T>::row_max_elem(int i, int b, int e) //获取第i行第b个(包含)到第e个元素(不包含)中的最大最大元素
+{
+    if (i > matrix::dim || i <= 0)
+    {
+        cout << "Row " << i << " does not exist!" << endl;
+        return 0;
+    }
+    else if (b < 1 || e > dim + 1 || b >= e)
+    {
+        cout << "There's no element between " << b << " and " << e << "!" << endl;
+        return 0;
+    }
+    return *max_element(m[i - 1] + b - 1, m[i - 1] + e - 1);
+}
+
+template <class T>
+int matrix<T>::row_min_index(int i, int b, int e) //获取第i行最小元素的列数, 返回值在1~n之间
+{
+    if (i > matrix::dim || i <= 0)
+    {
+        cout << "Row " << i << " does not exist!" << endl;
+        return 0;
+    }
+    else if (b < 1 || e > dim + 1 || b >= e)
+    {
+        cout << "There's no element between " << b << " and " << e << "!" << endl;
+        return 0;
+    }
+    return (min_element(m[i - 1] + b - 1, m[i - 1] + e - 1) - m[i - 1] + 1);
+}
+
+template <class T>
+T matrix<T>::row_min_elem(int i, int b, int e) //获取第i行最小元素
+{
+    if (i > matrix::dim || i <= 0)
+    {
+        cout << "Row " << i << " does not exist!" << endl;
+        return 0;
+    }
+    else if (b < 1 || e > dim + 1 || b >= e)
+    {
+        cout << "There's no element between " << b << " and " << e << "!" << endl;
+        return 0;
+    }
+    return *min_element(m[i - 1] + b - 1, m[i - 1] + e - 1);
+}
+
+
+
+//********************************
+//diagonal_matrix类
+//********************************
+
+template <class T>
+class diagonal_matrix //对角矩阵
+{
+private:
+    int dim;  //矩阵级数
+    T *diagm; //指向存储数组的指针
+public:
+    diagonal_matrix(int n);                               //构造函数, 构造n级0矩阵
+    diagonal_matrix();                                    //默认构造函数
+    diagonal_matrix(const diagonal_matrix &dm);           //复制构造函数
+    ~diagonal_matrix();                                   //析构函数
+    diagonal_matrix operator=(const diagonal_matrix &dm); //重载 = 运算符
+
+    int getdim() { return dim; }    //获得级数
+    T getelem(int i, int j);        //返回第i行第j列的值
+    void changeelem(int i, T elem); //将第i行第i列的值改为elem
+    void print(int w = 4);          //打印此对角矩阵
+};
+
+//********************************
+//diagonal_matrix类的函数实现
+//********************************
+template <class T>
+diagonal_matrix<T>::diagonal_matrix(int n) //构造函数, 构造n级0矩阵
+{
+    if (n <= 0)
+    {
+        diagonal_matrix::dim = 0;
+        diagonal_matrix::diagm = NULL;
+        cout << "The " << n << "-dimision diagonal matrix fails to be founded!" << endl;
+    }
+    else
+    {
+        diagonal_matrix::dim = n;
+        diagonal_matrix::diagm = new T[n];
+        for (int i = 0; i < n; i++)
+            diagonal_matrix::diagm[i] = 0;
+    }
+}
+
+template <class T>
+diagonal_matrix<T>::diagonal_matrix() //默认构造函数
+{
+    diagonal_matrix::dim = 0;
+    diagonal_matrix::diagm = NULL;
+}
+
+template <class T>
+diagonal_matrix<T>::diagonal_matrix(const diagonal_matrix &dm) //复制构造函数
+{
+    dim = dm.dim;
+    diagm = new T[dim];
+    for (int i = 0; i < dim; i++)
+        diagonal_matrix::diagm[i] = dm.diagm[i];
+}
+
+template <class T>
+diagonal_matrix<T>::~diagonal_matrix() //析构函数
+{
+    delete[] diagonal_matrix::diagm;
+}
+
+template <class T>
+diagonal_matrix<T> diagonal_matrix<T>::operator=(const diagonal_matrix<T> &dm) //重载 = 运算符
+{
+    T *temp = new T[dm.dim]; //申请行向量数组, 共dm.dim行
+    for (int i = 0; i < dm.dim; i++)
+        temp[i] = dm.diagm[i];
+    delete[] diagm;
+    dim = dm.dim;
+    diagm = temp;
+    cout << "Calling =" << endl;
+    return *this;
+}
+
+template <class T>
+T diagonal_matrix<T>::getelem(int i, int j) //返回第i行第j列的值
+{
+    if (i > diagonal_matrix::dim || i <= 0 || j > diagonal_matrix::dim || j <= 0)
+    {
+        cout << "The element (" << i << ',' << j << ") is not exist!" << endl;
+        return 0;
+    }
+    else if (i == j)
+        return diagonal_matrix::diagm[i - 1];
+    else
+        return 0;
+}
+
+template <class T>
+void diagonal_matrix<T>::changeelem(int i, T elem) //将第i行第i列的值改为elem
+{
+    if (i > diagonal_matrix::dim || i <= 0)
+    {
+        cout << "The element (" << i << ',' << i << ") is not exist!" << endl;
+        return;
+    }
+    else
+        diagonal_matrix::diagm[i - 1] = elem;
+}
+
+template <class T>
+void diagonal_matrix<T>::print(int w) //打印此对角矩阵
+{
+    for (int i = 0; i < dim; i++)
+    {
+        for (int j = 0; j < i; j++)
+            cout << setw(w) << 0 << ' ';
+        cout << setw(w) << diagm[i] << ' ';
+        for (int j = 0; j < dim - i - 1; j++)
+            cout << setw(w) << 0 << ' ';
+        cout << endl;
+    }
+}
+
+//********************************
+//uptrimatrix类
+//********************************
+
+
+template <class T>
+class uptrimatrix //上三角矩阵, 可以是带状的
+{
+private:
+    int dim;           //矩阵级数
+    int halfbandwidth; //矩阵半带宽, 0矩阵用 halfbandwidth=-1 表示, 对角矩阵 halfbandwidth=0
+    T **uptrim;        //指向储存矩阵的二维数组的指针, 第(i,j)储存在 uptrim[j-i][i-1]处, 正如带状矩阵
+public:
+    uptrimatrix() : dim(0), halfbandwidth(-1), uptrim(NULL) {} //默认构造函数
+    uptrimatrix(int n);                                        //构造函数, 构造 n 级半带宽 hbw=n-1 的 0 矩阵
+    uptrimatrix(int n, int hbw);                               //构造函数, 构造 n 级半带宽 hbw 的 0 矩阵
+    uptrimatrix(const matrix<T> &ma);                          //构造函数, 取矩阵 ma 的右上一半
+    uptrimatrix(const uptrimatrix &um);                        //复制构造函数
+    ~uptrimatrix();                                            //析构函数
+    uptrimatrix operator=(const uptrimatrix &um);              //重载 = 运算符
+    int getdim() { return dim; }           //获得级数
+    T getelem(int i, int j);               //返回第i行第j列的值
+    void changeelem(int i, int j, T elem); //将第i行第i列的值改为elem
+    void print(int w = 4);                 //打印此上三角矩阵
+    vec<T> linear_f(const vec<T> &b, T zerolim = 0.00000000000001); //返回以此上三角矩阵为系数矩阵，以b为非齐次项的线性方程组的解
+};
+
+
+//********************************
+//uptrimatrix的函数实现
+//********************************
+
+template <class T>
+uptrimatrix<T>::uptrimatrix(int n) : dim(n), halfbandwidth(n - 1) //构造函数, 构造 n 级半带宽 hbw=n-1 的 0 矩阵
+{
+    if (n <= 0)
+    {
+        dim = 0;
+        halfbandwidth = -1;
+        uptrim = NULL;
+        cout << "The " << n << "-dimision upper triangle matrix fails to be constructed!" << endl;
+    }
+    else
+    {
+        uptrim = new T *[n]; //申请沿对角线方向向量数组, 共 n 排
+        for (int i = 0; i < n; i++)
+        {
+            uptrim[i] = new T[n - i];
+            for (int j = 0; j < n - i; j++)
+                uptrim[i][j] = 0;
+        }
+    }
+}
+
+template <class T>
+uptrimatrix<T>::uptrimatrix(const matrix<T> &ma) //构造函数, 取矩阵 ma 的右上一半
+{
+    dim = ma.dim;
+    uptrim = new T *[dim]; //申请行向量数组, 共n行
+    for (int i = 0; i < dim; i++)
+    {
+        uptrim[i] = new T[dim - i]; //申请列, 第(i+1)存于uptrim[i]
+        for (int j = 0; j < dim - i; j++)
+            uptrim[i][j] = ma.m[i][j + i];
+    }
+}
+
+template <class T>
+uptrimatrix<T>::uptrimatrix(const uptrimatrix &um) //复制构造函数
+{
+    dim = um.dim;
+    uptrim = new T *[dim]; //申请行向量数组, 共dim行
+    for (int i = 0; i < dim; i++)
+    {
+        uptrim[i] = new T[dim - i]; //申请列, 第(i+1)存于uptrim[i], 有(dim-i)个非零元, i=0,1,...,dim-1.
+        for (int j = 0; j < dim - i; j++)
+            uptrim[i][j] = um.uptrim[i][j];
+    }
+}
+
+template <class T>
+uptrimatrix<T>::~uptrimatrix() //析构函数
+{
+    // for (int i = 0; i < uptrimatrix::dim; i++)
+    //     delete[] uptrimatrix::uptrim[i];
+    // delete[] uptrimatrix::uptrim;
+    cout<<"Calling the destructor of uptrimatrix!"<<endl;
+}
+
+template <class T>
+uptrimatrix<T> uptrimatrix<T>::operator=(const uptrimatrix<T> &um) //重载 = 运算符
+{
+    T **temp = new T *[um.dim]; //申请行向量数组, 共um.dim行
+    for (int i = 0; i < um.dim; i++)
+    {
+        temp[i] = new T[um.dim - i]; //申请列, 第(i+1)存于m[i], i=0,1,...,ma.dim-1.
+        for (int j = 0; j < um.dim - i; j++)
+            temp[i][j] = um.uptrim[i][j];
+    }
+    for (int i = 0; i < dim; i++) //释放原来的二维数组
+        delete[] uptrim[i];
+    delete[] uptrim;
+    dim = um.dim;
+    uptrim = temp;
+    cout << "Calling =" << endl;
+    return *this;
+}
+
+//********************************
+//lowtrimatrix
+//********************************
+template <class T>
+class lowtrimatrix //下三角矩阵
+{
+private:
+    int dim;     //下三角矩阵的级数
+    T **lowtrim; //指向储存矩阵的二维数组的指针
+public:
+    lowtrimatrix();                                 //默认构造函数
+    lowtrimatrix(int n);                            //构造函数, 构造n级0矩阵
+    lowtrimatrix(const matrix<T> &ma);              //构造函数, 取矩阵 ma 的左下一半
+    lowtrimatrix(const lowtrimatrix &lm);           //复制构造函数
+    ~lowtrimatrix();                                //析构函数
+    lowtrimatrix operator=(const lowtrimatrix &lm); //重载 = 运算符
+
+    int getdim() { return dim; }           //获得级数
+    T getelem(int i, int j);               //返回第i行第j列的值
+    void changeelem(int i, int j, T elem); //将第i行第i列的值改为elem
+    void print(int w = 4);                 //打印此下三角矩阵
+
+    vec<T> linear_f(const vec<T> &b, T zerolim = 0.00000000000001); //返回以此下三角矩阵为系数矩阵，以b为非齐次项的线性方程组的解
+};
+
+
+//********************************
+//lowtrimatrix的函数实现
+//********************************
+template <class T>
+lowtrimatrix<T>::lowtrimatrix() : //默认构造函数
+                                  dim(0), lowtrim(NULL)
+{
+}
+
+template <class T>
+lowtrimatrix<T>::lowtrimatrix(int n) //构造函数, 构造n级0矩阵
+{
+    if (n <= 0)
+    {
+        dim = 0;
+        lowtrim = NULL;
+        cout << "The " << n << "-dimision lower triangle matrix fails to be constructed!" << endl;
+    }
+    else
+    {
+        dim = n;
+        lowtrim = new T *[n]; //申请行向量数组, 共n行
+        for (int i = 0; i < n; i++)
+        {
+            lowtrim[i] = new T[i + 1]; //申请列向量数组
+            for (int j = 0; j < i + 1; j++)
+                lowtrim[i][j] = 0;
+        }
+    }
+}
+
+template <class T>
+lowtrimatrix<T>::lowtrimatrix(const matrix<T> &ma) //构造函数, 取矩阵 ma 的左下一半
+{
+    dim = ma.dim;
+    lowtrim = new T *[dim];
+    for (int i = 0; i < dim; i++)
+    {
+        lowtrim[i] = new T[i + 1];
+        for (int j = 0; j < i + 1; j++)
+            lowtrim[i][j] = ma.m[i][j];
+    }
+}
+
+template <class T>
+lowtrimatrix<T>::lowtrimatrix(const lowtrimatrix &lm) //复制构造函数
+{
+    dim = lm.dim;
+    lowtrim = new T *[dim]; //申请行向量数组, 共dim行
+    for (int i = 0; i < dim; i++)
+    {
+        lowtrim[i] = new T[i + 1]; //申请列向量数组
+        for (int j = 0; j <= i + 1; j++)
+            lowtrim[i][j] = lm.lowtrim[i][j];
+    }
+}
+
+template <class T>
+lowtrimatrix<T>::~lowtrimatrix() //析构函数
+{
+    for (int i = 0; i < dim; i++)
+        delete[] lowtrim[i];
+    delete[] lowtrim;
+}
+
+template <class T>
+lowtrimatrix<T> lowtrimatrix<T>::operator=(const lowtrimatrix &lm) //重载 "=" 运算符
+{
+    T **temp = new T *[lm.dim]; //申请行向量数组, 共lm.dim行
+    for (int i = 0; i < lm.dim; i++)
+    {
+        temp[i] = new T[i + 1]; //申请列
+        for (int j = 0; j < i + 1; j++)
+            temp[i][j] = lm.lowtrim[i][j]; //给每个元素赋值
+    }
+    for (int i = 0; i < dim; i++) //释放原来的二维数组
+        delete[] lowtrim[i];
+    delete[] lowtrim;
+    dim = lm.dim;
+    lowtrim = temp;
+    return *this;
+}
+
+template <class T>
+T lowtrimatrix<T>::getelem(int i, int j) //返回第i行第j列的值
+{
+    if (i > dim || i <= 0 || j > dim || j <= 0)
+    {
+        cout << "The element (" << i << ',' << j << ") is not exist!" << endl;
+        return 0;
+    }
+    if (i < j)
+        return 0;
+    return lowtrim[i - 1][j - 1];
+}
+
+template <class T>
+void lowtrimatrix<T>::changeelem(int i, int j, T elem) //将第i行第i列的值改为elem
+{
+    if (i > dim || i <= 0 || j > dim || j <= 0)
+    {
+        cout << "The element (" << i << ',' << j << ") is not exist!" << endl;
+        return;
+    }
+    if (i < j)
+    {
+        cout << "The element (" << i << ',' << j << ") cannot be changed because this is a lower triangle matrix!" << endl;
+        return;
+    }
+    lowtrim[i - 1][j - 1] = elem;
+}
+
+template <class T>
+void lowtrimatrix<T>::print(int w) //打印此下三角矩阵
+{
+    for (int i = 0; i < dim; i++)
+    {
+        for (int j = 0; j < i + 1; j++)
+            cout << setw(w) << lowtrim[i][j];
+        for (int j = 0; j < dim - i - 1; j++)
+            cout << setw(w) << 0;
+        cout << endl;
+    }
+}
+
+template <class T>
+vec<T> lowtrimatrix<T>::linear_f(const vec<T> &b, T zerolim) //返回以此下三角矩阵为系数矩阵，以b为非齐次项的线性方程组的解
+{
+    vec<T> so;
+    if (dim != b.dim)
+    {
+        cout << "系数矩阵和非齐次项的维数不同！" << endl;
+        return so;
+    }
+    vec<T> x(dim);
+    for (int i = 0; i < dim; i++)
+    {
+        if (abs(lowtrim[i][i]) < zerolim)
+        {
+            cout << "The lower triangle matrix is not invertible!" << endl;
+            return so;
+        }
+        T tempsum = 0;
+        for (int j = 0; j < i; j++)
+            tempsum += lowtrim[i][j] * x.v[j];
+        x.v[i] = (b.v[i] - tempsum) / lowtrim[i][i];
+    }
+    return x;
+}
+
+
+template <class T>
+vec<T> matrix<T>::proportion_linear_f(vec<T> &b, T zerolim) //返回以此矩阵为系数矩阵，以b为非齐次项的线性方程组的解, 列主元采用比例因子主元
+{
+    for (int i = 1; i <= dim; i++) //i 是矩阵真实行号, 而不是存储指标
+    {
+        proportion_mainelem(i, b);          //选主元
+        if (abs(m[i - 1][i - 1]) < zerolim) //如果主元为零，则系数矩阵不可逆
+        {
+            cout << "The matrix is not invertible!" << endl;
+            vec<T> so;
+            return so;
+        }
+        for (int j = i + 1; j <= dim; j++) //消元, 把第i列下面的都消掉
+        {
+            T coe = m[j - 1][i - 1] / m[i - 1][i - 1]; //消元系数(倍数)
+            for (int k = i; k <= dim; k++)             //把第j行减掉第i行的一个倍数
+                m[j - 1][k - 1] -= coe * m[i - 1][k - 1];
+            b.v[j - 1] -= coe * b.v[i - 1]; //向量b也减一下
+        }
+    } //现在得到了上三角矩阵
+    uptrimatrix<T> u(*this);
+    return u.linear_f(b);
+}
